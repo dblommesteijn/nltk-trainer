@@ -17,6 +17,12 @@ def category_para_words(categorized_corpus, category):
 def category_file_words(categorized_corpus, category):
 	for fileid in category_fileidset(categorized_corpus, category):
 		yield categorized_corpus.words(fileids=[fileid])
+		
+def category_tagged_words(categorized_corpus, category):
+	for fileid in category_fileidset(categorized_corpus, category):
+		tagged_sents = categorized_corpus.tagged_sents(fileids=[fileid], simplify_tags=True)
+		yield tagged_sents[0]
+
 
 ## multi category corpus ##
 

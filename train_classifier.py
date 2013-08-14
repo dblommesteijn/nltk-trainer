@@ -50,7 +50,7 @@ corpus_group.add_argument('--cat_file',
 corpus_group.add_argument('--delimiter', default=' ',
 	help='category delimiter for category file, defaults to space')
 corpus_group.add_argument('--instances', default='files',
-	choices=('sents', 'paras', 'files'),
+	choices=('sents', 'paras', 'files', 'tagged'),
 	help='''the group of words that represents a single training instance,
 	the default is to use entire files''')
 corpus_group.add_argument('--fraction', default=1.0, type=float,
@@ -68,6 +68,8 @@ corpus_group.add_argument('--sent-tokenizer', default='', help='Sent Tokenizer d
 corpus_group.add_argument('--para-block-reader', default='', help='Block reader function path')
 corpus_group.add_argument('--labels', default=[],
 	help='''If given a list of labels, default categories by corpus are omitted''')
+corpus_group.add_argument('--feature-separator', default='', help='Feature separator token in corpus')
+
 
 classifier_group = parser.add_argument_group('Classifier Type',
 	'''A binary classifier has only 2 labels, and is the default classifier type.
@@ -162,6 +164,9 @@ if args.sent_tokenizer:
 if args.para_block_reader:
 	reader_kwargs['para_block_reader'] = import_attr(args.para_block_reader)
 
+if args.feature_separator:
+	reader_kwargs['sep'] = args.feature_separator
+
 if args.trace:
 	print 'loading %s' % args.corpus
 
@@ -200,6 +205,10 @@ if not args.punctuation:
 	stopset |= set(string.punctuation)
 
 def norm_words(words):
+
+	if isinstance(words, list):
+		return words
+
 	if not args.no_lowercase:
 		words = [w.lower() for w in words]
 	
@@ -283,7 +292,8 @@ else:
 	label_instance_function = {
 		'sents': corpus.category_sent_words,
 		'paras': corpus.category_para_words,
-		'files': corpus.category_file_words
+		'files': corpus.category_file_words,
+		'tagged': corpus.category_tagged_words
 	}
 	
 	lif = label_instance_function[args.instances]
